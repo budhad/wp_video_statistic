@@ -72,7 +72,7 @@
       let data = {
         action: 'statistic',
         stat_action: stat.stat_action,
-        nonce: ajax.nonce,
+        nonce: statistic.nonce,
         user: statistic.user,
         url_page: stat.url_page,
         url_file: stat.url_file,
@@ -84,7 +84,7 @@
 
       $.ajax({
           type: "POST",
-          url: ajax.url,
+          url: statistic.url,
           data: data,
           success: function(data) {
               if (data.error) {

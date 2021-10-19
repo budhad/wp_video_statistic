@@ -26,6 +26,8 @@ function statistic_media() {
     'result'  => $stat
   ];
   wp_send_json( $data );
+  
+  exit();
 }
 
 if ( wp_doing_ajax() ) {

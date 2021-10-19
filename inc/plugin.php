@@ -24,15 +24,14 @@ class Plugin {
     return $content;
   }
   
-  // function lead_enqueue_scripts( $hook_suffix ) {
-      // global $leadsuHelp;
-      // wp_enqueue_script( 'lead_admin', $leadsuHelp->get_plugin_dir_url() . 'assets/js/lead_admin.js', array('jquery') );
-  // }
-
   public function register_scripts(){
-    wp_enqueue_script( 'statistic', $this->plugin_path . 'assets/js/statistic.js', ['jquery'], 0, true );
+    $md5statistic = md5_file( $this->plugin_path . 'assets/js/statistic.js' );
+    wp_enqueue_script( 'statistic', $this->plugin_path . "assets/js/statistic.js?$md5statistic", ['jquery'], 0, true );
+    $secretIdentificator = get_current_user_id() ?: random_int(1000, 10000);
     wp_localize_script('statistic', 'statistic', array(
-      'user' => get_current_user_id() ?: random_int(1000, 10000)
+      'user' => $secretIdentificator,
+      'url' => admin_url('admin-ajax.php'),
+      'nonce' => wp_create_nonce($secretIdentificator)
     ));
   }
 
