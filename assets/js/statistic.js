@@ -2,11 +2,7 @@
 
   const AppStatistic = {
     init: function () {
-      const that = this;
-      let videos = [];
-      that.registerVideoEvents(that);
-      that.sendStat();
-      that.getFormatDate();
+      this.registerVideoEvents();
     },
     getFormatDate: function(date = new Date()) {
       let result = date.getFullYear().toString();
@@ -16,50 +12,35 @@
       result += date.getDate().toString();
       return result;
     },
-    registerVideoEvents: function(that) {
+    registerVideoEvents: function() {
+      const that = this;
       let $video = $('figure');
 
       $video.each(function(){
-        console.log( '$(this).find("video").length', $(this).find('video').length );
         if ( ! $(this).find('video').length ) return;
+        
+        const date = new Date();
+        const dateStr = that.getFormatDate(date);
+        const stat = {
+          stat_action:'',
+          url_page: window.location.pathname,
+          url_file: $(this).attr('src'),
+          value: JSON.stringify({ time : this.currentTime}),
+          date: dateStr
+        }
         // начинается воспроизведение медиа
         $(this).find('video').on('playing', function(){
-          let date = new Date();
-          let dateStr = that.getFormatDate(date);
-          let stat = {
-            stat_action:'playing',
-            url_page: window.location.pathname,
-            url_file: $(this).attr('src'),
-            value: JSON.stringify({ time : this.currentTime}),
-            date: dateStr
-          }
-        
+          stat.stat_action = 'playing';
           that.sendStat(stat);
         })
         // воспроизведение завершено.
         $(this).find('video').on('ended', function(){
-          let date = new Date();
-          let dateStr = that.getFormatDate(date);
-          let stat = {
-            stat_action:'ended',
-            url_page: window.location.pathname,
-            url_file: $(this).attr('src'),
-            value: JSON.stringify({ time : this.currentTime}),
-            date: dateStr
-          }
+          stat.stat_action = 'ended';
           that.sendStat(stat);
         })
         // воспроизведение приостановлено
         $(this).find('video').on('pause', function(){
-          let date = new Date();
-          let dateStr = that.getFormatDate(date);
-          let stat = {
-            stat_action:'pause',
-            url_page: window.location.pathname,
-            url_file: $(this).attr('src'),
-            value: JSON.stringify({ time : this.currentTime}),
-            date: dateStr
-          }
+          stat.stat_action = 'pause';
           that.sendStat(stat);
         })
       })
@@ -68,7 +49,6 @@
 
       if ( !Object.keys(stat).length ) return;
 
-      
       let data = {
         action: 'statistic',
         stat_action: stat.stat_action,
@@ -86,11 +66,11 @@
           type: "POST",
           url: statistic.url,
           data: data,
-          success: function(data) {
-              if (data.error) {
-                  alert(data.error);
-              } else if (data.result) {
-                  console.log(data.result);
+          success: function(response) {
+              if (response.error) {
+                  console.log(response.error);
+              } else if (response.result) {
+//                   console.log(data.result);
               }
           }
       });
